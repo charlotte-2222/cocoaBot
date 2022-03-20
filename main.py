@@ -1,16 +1,35 @@
-# This is a sample Python script.
+import asyncio
+import os
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+import discord
+from discord import app_commands
+from discord.ext import commands, tasks
+
+from utils.config import token
+
+intents = discord.Intents.all()
+intents.message_content = True
+intents.message_content = True
+intents.members = True
+client = discord.Client(intents=intents)
+tree = app_commands.CommandTree(client)
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+class MyClient(discord.Client):
+    async def on_ready(self):
+        print(f"Sync'd all application commands @%H:%M:%S\n"
+              f"%m/%d/%Y\n"
+              f"-----")
+        print(f'Logged in as {client.user}')
+        print('-----')
+        await tree.sync()
+
+    async def on_member_join(self, member):
+        guild = member.guild
+        if guild.system_channel is not None:
+            to_send = f'Welcome {member.mention} to {guild.name}!'
+            await guild.system_channel.send(to_send)
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+client.run(token,
+           reconnect=True)
